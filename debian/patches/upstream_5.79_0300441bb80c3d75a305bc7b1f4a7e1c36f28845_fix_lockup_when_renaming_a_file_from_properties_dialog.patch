@@ -1,0 +1,40 @@
+Origin: https://invent.kde.org/frameworks/kio/commit/0300441bb80c3d75a305bc7b1f4a7e1c36f28845
+From: David Redondo <kde@david-redondo.de>
+Date: Mon, 25 Jan 2021 12:26:29 +0100
+Forwarded: not-needed
+Subject: [PATCH] Fix lockup when renaming a file from properties dialog
+ 4c12899369f43009269d0fdb80964483365bb922 changed how we show the rename dialog.
+ Before we would exec() it and now we call show(). This causes a lockup when
+ renaming a file from the properties dialog to a filename that already exsist.
+ Optimally we would change KPropertiesDialog to make it async and not use nested
+ event loops but this fixes the lockup for now.
+ .
+ BUG:431902
+---
+ src/widgets/kpropertiesdialog.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/widgets/kpropertiesdialog.cpp b/src/widgets/kpropertiesdialog.cpp
+index 16e3cfaa..c49e89e3 100644
+--- a/src/widgets/kpropertiesdialog.cpp
++++ b/src/widgets/kpropertiesdialog.cpp
+@@ -1534,7 +1534,7 @@ void KFilePropsPlugin::applyChanges()
+             } else { // Copying a template
+                 job = KIO::copyAs(oldurl, properties->url());
+             }
+-
++            KJobWidgets::setWindow(job, properties);
+             connect(job, &KJob::result,
+                     this, &KFilePropsPlugin::slotCopyFinished);
+             connect(job, &KIO::CopyJob::renamed,
+@@ -1543,7 +1543,7 @@ void KFilePropsPlugin::applyChanges()
+             QEventLoop eventLoop;
+             connect(this, &KFilePropsPlugin::leaveModality,
+                     &eventLoop, &QEventLoop::quit);
+-            eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
++            eventLoop.exec();
+             return;
+         }
+         properties->updateUrl(properties->url());
+-- 
+GitLab

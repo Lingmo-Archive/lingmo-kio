@@ -1,0 +1,7 @@
+report_error_removing_dirs
+fix_kfreebsd_build
+fix_hurd_build.patch
+#Use-CXX_FLAGS-for-moc_predefs.h.patch
+upstream_5.79_0300441bb80c3d75a305bc7b1f4a7e1c36f28845_fix_lockup_when_renaming_a_file_from_properties_dialog.patch
+upstream-a183dd0d1ee0-copyjob-fix-crash-skip-retry.patch
+upstream-8ad69215-fix-selecting-binaries-from-components.patch
